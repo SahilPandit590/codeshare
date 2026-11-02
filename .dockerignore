@@ -1,0 +1,28 @@
+# Dependencies and build outputs (rebuilt inside Docker)
+node_modules/
+backend/dist/
+frontend/dist/
+shared/dist/
+
+# Local secrets — never include in Docker build context
+.env
+.env.local
+.env.*
+.neon
+.neon/
+
+# Development and test artifacts
+*.log
+coverage/
+.nyc_output/
+tests/
+
+# Git
+.git/
+.gitignore
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
