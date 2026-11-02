@@ -1,4 +1,4 @@
-import express, { Express } from 'express';
+import express, { Express, Request } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import path from 'path';
@@ -14,6 +14,45 @@ export function createApp(): Express {
   // Configure trust proxy for Render reverse proxy (1 hop)
   // Ensures req.ip reflects actual client IP rather than trusting arbitrary headers
   app.set('trust proxy', 1);
+
+  // Build allowed CORS origins list from CORS_ORIGIN and APP_BASE_URL (excluding wildcards)
+  const allowedOrigins = env.CORS_ORIGIN.split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0 && origin !== '*');
+
+  let appBaseOrigin: string | null = null;
+  try {
+    if (env.APP_BASE_URL) {
+      appBaseOrigin = new URL(env.APP_BASE_URL).origin;
+      if (!allowedOrigins.includes(appBaseOrigin)) {
+        allowedOrigins.push(appBaseOrigin);
+      }
+    }
+  } catch {
+    // Ignore invalid URL formatting
+  }
+
+  // Set of known, verified hosts for safe same-origin validation
+  const allowedHosts = new Set<string>();
+  if (appBaseOrigin) {
+    try {
+      allowedHosts.add(new URL(appBaseOrigin).host.toLowerCase());
+    } catch {
+      // Ignore
+    }
+  }
+  for (const originStr of allowedOrigins) {
+    try {
+      allowedHosts.add(new URL(originStr).host.toLowerCase());
+    } catch {
+      // Ignore
+    }
+  }
+  // Permit localhost and 127.0.0.1 for local development
+  if (env.NODE_ENV !== 'production') {
+    allowedHosts.add('localhost');
+    allowedHosts.add('127.0.0.1');
+  }
 
   // Basic security hardening with Helmet
   app.use(
@@ -43,7 +82,7 @@ export function createApp(): Express {
           connectSrc: [
             "'self'",
             'https://pagead2.googlesyndication.com',
-            ...env.CORS_ORIGIN.split(',').map((o) => o.trim()),
+            ...allowedOrigins,
           ],
         },
       },
@@ -51,24 +90,48 @@ export function createApp(): Express {
     })
   );
 
-  // CORS allowlisting
-  const allowedOrigins = env.CORS_ORIGIN.split(',').map((origin) => origin.trim());
-  app.use(
-    cors({
-      origin: (origin, callback) => {
-        // Allow requests with no origin (e.g., mobile apps, curl, server-to-server)
-        if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Blocked by CORS policy'));
-        }
-      },
-      methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'x-delete-token'],
-      credentials: true,
-      maxAge: 86400,
-    })
-  );
+  // CORS middleware scoped strictly to /api routes
+  const apiCorsMiddleware = cors<Request>((req, callback) => {
+    const origin = req.headers.origin;
+
+    // Allow requests with no origin (e.g., mobile apps, curl, server-to-server)
+    if (!origin) {
+      return callback(null, { origin: true });
+    }
+
+    // Check if origin dynamically matches a verified known host (prevents spoofed Host headers)
+    const host = req.get('host');
+    const hostWithoutPort = host ? host.split(':')[0].toLowerCase() : '';
+    const isKnownHost = host
+      ? allowedHosts.has(host.toLowerCase()) || allowedHosts.has(hostWithoutPort)
+      : false;
+
+    const isSameOrigin = (host && isKnownHost)
+      ? origin === `${req.protocol}://${host}` ||
+        origin === `http://${host}` ||
+        origin === `https://${host}`
+      : false;
+
+    const isAllowed =
+      allowedOrigins.includes(origin) ||
+      (appBaseOrigin !== null && origin === appBaseOrigin) ||
+      isSameOrigin;
+
+    if (isAllowed) {
+      callback(null, {
+        origin: true,
+        methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'x-delete-token'],
+        credentials: true,
+        maxAge: 86400,
+      });
+    } else {
+      callback(null, { origin: false });
+    }
+  });
+
+  // Apply CORS specifically to API routes
+  app.use('/api', apiCorsMiddleware);
 
   // Parse incoming JSON payloads with size guard
   app.use(express.json({ limit: `${Math.ceil(env.MAX_PASTE_SIZE_BYTES / 1024) + 128}kb` }));
