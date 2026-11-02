@@ -1,0 +1,4 @@
+# Google AdSense ads.txt for CodeShare
+# Replace pub-0000000000000000 with your actual publisher account ID after approval
+google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+

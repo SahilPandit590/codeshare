@@ -1,0 +1,122 @@
+import express, { Express } from 'express';
+import helmet from 'helmet';
+import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import { env } from './config/env';
+import pasteRoutes from './routes/paste.routes';
+import healthRoutes from './routes/health.routes';
+import { errorHandler } from './middleware/errorHandler';
+
+export function createApp(): Express {
+  const app = express();
+
+  // Configure trust proxy for Render reverse proxy (1 hop)
+  // Ensures req.ip reflects actual client IP rather than trusting arbitrary headers
+  app.set('trust proxy', 1);
+
+  // Basic security hardening with Helmet
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: [
+            "'self'",
+            'https://pagead2.googlesyndication.com',
+            'https://tpc.googlesyndication.com',
+          ],
+          styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+          fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+          imgSrc: [
+            "'self'",
+            'data:',
+            'https://pagead2.googlesyndication.com',
+            'https://tpc.googlesyndication.com',
+          ],
+          frameSrc: [
+            "'self'",
+            'https://googleads.g.doubleclick.net',
+            'https://pagead2.googlesyndication.com',
+            'https://tpc.googlesyndication.com',
+          ],
+          connectSrc: [
+            "'self'",
+            'https://pagead2.googlesyndication.com',
+            ...env.CORS_ORIGIN.split(',').map((o) => o.trim()),
+          ],
+        },
+      },
+      crossOriginEmbedderPolicy: false,
+    })
+  );
+
+  // CORS allowlisting
+  const allowedOrigins = env.CORS_ORIGIN.split(',').map((origin) => origin.trim());
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        // Allow requests with no origin (e.g., mobile apps, curl, server-to-server)
+        if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Blocked by CORS policy'));
+        }
+      },
+      methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'x-delete-token'],
+      credentials: true,
+      maxAge: 86400,
+    })
+  );
+
+  // Parse incoming JSON payloads with size guard
+  app.use(express.json({ limit: `${Math.ceil(env.MAX_PASTE_SIZE_BYTES / 1024) + 128}kb` }));
+
+  // API Routes
+  app.use('/api/pastes', pasteRoutes);
+  app.use('/api/health', healthRoutes);
+
+  // Dedicated /ads.txt endpoint (ensures HTTP 200 text/plain in all environments)
+  app.get('/ads.txt', (_req, res) => {
+    const distAdsTxtPath = path.resolve(__dirname, '../../frontend/dist/ads.txt');
+    const publicAdsTxtPath = path.resolve(__dirname, '../../frontend/public/ads.txt');
+    if (fs.existsSync(distAdsTxtPath)) {
+      return res.type('text/plain').sendFile(distAdsTxtPath);
+    }
+    if (fs.existsSync(publicAdsTxtPath)) {
+      return res.type('text/plain').sendFile(publicAdsTxtPath);
+    }
+    res.type('text/plain').send('# Google AdSense ads.txt for CodeShare\n# Replace with your actual publisher account ID after approval\ngoogle.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0\n');
+  });
+
+  // In production, serve the built frontend static files
+  const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
+  if (fs.existsSync(frontendDistPath)) {
+    app.use(express.static(frontendDistPath));
+
+    // Client-side routing fallback (for /p/:id etc.)
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api/')) {
+        return next();
+      }
+      res.sendFile(path.join(frontendDistPath, 'index.html'));
+    });
+  }
+
+  // 404 handler for undefined API routes
+  app.use('/api/*', (_req, res) => {
+    res.status(404).json({
+      error: {
+        code: 'ROUTE_NOT_FOUND',
+        message: 'The requested API route does not exist',
+      },
+    });
+  });
+
+  // Centralized Error Handler
+  app.use(errorHandler);
+
+  return app;
+}
+

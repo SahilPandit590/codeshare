@@ -1,0 +1,10 @@
+{
+  "name": "@codeshare/shared",
+  "version": "1.0.0",
+  "main": "./types/paste.ts",
+  "types": "./types/paste.ts",
+  "scripts": {
+    "build": "tsc"
+  }
+}
+

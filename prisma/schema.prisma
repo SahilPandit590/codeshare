@@ -1,0 +1,22 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Paste {
+  id              String   @id @db.VarChar(32)
+  content         String   @db.Text
+  language        String   @default("text") @db.VarChar(32)
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  expiresAt       DateTime @db.Timestamptz(6)
+  deleteTokenHash String   @db.VarChar(64)
+
+  @@index([expiresAt], name: "idx_pastes_expires_at")
+  @@map("pastes")
+}
+
