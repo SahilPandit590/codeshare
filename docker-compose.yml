@@ -30,6 +30,8 @@ services:
       PORT: 3000
       NODE_ENV: production
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/codeshare?schema=public
+      DATABASE_URL_UNPOOLED: postgresql://postgres:postgres@postgres:5432/codeshare?schema=public
+      DIRECT_URL: postgresql://postgres:postgres@postgres:5432/codeshare?schema=public
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
       MAX_PASTE_SIZE_BYTES: ${MAX_PASTE_SIZE_BYTES:-524288}
@@ -40,4 +42,3 @@ services:
 
 volumes:
   pgdata:
-

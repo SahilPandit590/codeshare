@@ -8,14 +8,24 @@ describe('CORS & Static Asset Handling', () => {
   const app = createApp();
 
   it('allows same-origin static frontend asset requests without CORS blocking', async () => {
-    // Vite emits <script type="module" crossorigin> which attaches an Origin header
+    // Static frontend requests attach an Origin header in browser builds.
     const res = await request(app)
-      .get('/assets/index-D9_BxxOo.css')
+      .get('/index.html')
       .set('Origin', 'https://codeshare.onrender.com');
 
     // Must NOT return 500 "Blocked by CORS policy"
     expect(res.status).toBe(200);
     expect(res.status).not.toBe(500);
+  });
+
+  it('serves the frontend shell for direct shared URL navigation and refresh', async () => {
+    const res = await request(app)
+      .get('/s/direct-navigation-test')
+      .set('Accept', 'text/html');
+
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('text/html');
+    expect(res.text).toContain('<div id="root">');
   });
 
   it('allows API requests from configured CORS_ORIGIN', async () => {
@@ -101,4 +111,3 @@ describe('CORS & Static Asset Handling', () => {
     expect(res.body.status).toBe('ok');
   });
 });
-

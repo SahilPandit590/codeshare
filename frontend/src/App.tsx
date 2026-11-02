@@ -1,6 +1,7 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { HomePage } from './pages/HomePage';
 import { PasteViewPage } from './pages/PasteViewPage';
+import { SnippetSharePage } from './pages/SnippetSharePage';
 import { AboutPage } from './pages/AboutPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { TermsPage } from './pages/TermsPage';
@@ -11,6 +12,7 @@ type RouteState =
   | { page: 'home' }
   | { page: 'create' }
   | { page: 'view'; pasteId: string; token?: string }
+  | { page: 'snippet'; snippetId: string }
   | { page: 'about' }
   | { page: 'privacy' }
   | { page: 'terms' };
@@ -24,6 +26,13 @@ function resolveRoute(): RouteState {
     const id = path.slice(3).split('/')[0];
     if (id) {
       return { page: 'view', pasteId: id, token };
+    }
+  }
+
+  if (path.startsWith('/s/')) {
+    const id = path.slice(3).split('/')[0];
+    if (id) {
+      return { page: 'snippet', snippetId: id };
     }
   }
 
@@ -115,6 +124,17 @@ export function App() {
       <PasteViewPage
         pasteId={currentRoute.pasteId}
         initialToken={currentRoute.token}
+        onNavigateHome={navigateHome}
+        onNavigateCreate={navigateCreate}
+        onNavigateAbout={navigateAbout}
+        onNavigatePrivacy={navigatePrivacy}
+        onNavigateTerms={navigateTerms}
+      />
+    );
+  } else if (currentRoute.page === 'snippet' && currentRoute.snippetId) {
+    page = (
+      <SnippetSharePage
+        snippetId={currentRoute.snippetId}
         onNavigateHome={navigateHome}
         onNavigateCreate={navigateCreate}
         onNavigateAbout={navigateAbout}

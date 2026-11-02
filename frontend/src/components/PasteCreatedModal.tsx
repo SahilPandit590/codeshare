@@ -1,10 +1,10 @@
 import React from 'react';
 import { ArrowRight, Check, CheckCircle2, Copy, ShieldAlert, X } from 'lucide-react';
-import { CreatePasteResponse } from '@codeshare/shared';
+import { CreateSnippetResponse } from '@codeshare/shared';
 import { useClipboard } from '../hooks/useClipboard';
 
 interface PasteCreatedModalProps {
-  paste: CreatePasteResponse;
+  paste: CreateSnippetResponse;
   onClose: () => void;
   onViewPaste: (id: string) => void;
 }
@@ -12,6 +12,7 @@ interface PasteCreatedModalProps {
 export const PasteCreatedModal: React.FC<PasteCreatedModalProps> = ({ paste, onClose, onViewPaste }) => {
   const { copy: copyPublicUrl, copied: publicCopied } = useClipboard();
   const { copy: copyDeleteUrl, copied: deleteCopied } = useClipboard();
+  const publicUrl = paste.shareUrl || paste.url;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" role="presentation">
@@ -29,8 +30,8 @@ export const PasteCreatedModal: React.FC<PasteCreatedModalProps> = ({ paste, onC
           <div>
             <label htmlFor="public-share-url" className="field-label">Public share URL</label>
             <div className="flex gap-2">
-              <input id="public-share-url" type="text" readOnly value={paste.url} className="field-input min-w-0 flex-1 font-mono text-xs" />
-              <button type="button" onClick={() => copyPublicUrl(paste.url)} className={publicCopied ? 'button-primary shrink-0 bg-emerald-600 hover:bg-emerald-500' : 'button-primary shrink-0'}>{publicCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}<span className="hidden sm:inline">{publicCopied ? 'Copied' : 'Copy'}</span></button>
+              <input id="public-share-url" type="text" readOnly value={publicUrl} className="field-input min-w-0 flex-1 font-mono text-xs" />
+              <button type="button" onClick={() => copyPublicUrl(publicUrl)} className={publicCopied ? 'button-primary shrink-0 bg-emerald-600 hover:bg-emerald-500' : 'button-primary shrink-0'}>{publicCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}<span className="hidden sm:inline">{publicCopied ? 'Copied' : 'Copy'}</span></button>
             </div>
           </div>
           <div>
@@ -48,6 +49,7 @@ export const PasteCreatedModal: React.FC<PasteCreatedModalProps> = ({ paste, onC
 
         <div className="mt-6 flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end">
           <button type="button" onClick={onClose} className="button-secondary">Create Another Paste</button>
+          <a href={publicUrl} target="_blank" rel="noreferrer" className="button-secondary justify-center">Open share link <ArrowRight className="h-4 w-4" /></a>
           <button type="button" onClick={() => onViewPaste(paste.id)} className="button-primary">View Paste <ArrowRight className="h-4 w-4" /></button>
         </div>
       </div>

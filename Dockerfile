@@ -3,6 +3,11 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+# Monaco's language workers make the Vite production bundle memory-intensive.
+# Keep the runtime stage unchanged; this only gives the build process enough
+# heap on Render and local Docker builds.
+ENV NODE_OPTIONS=--max-old-space-size=4096
+
 # Copy root manifests
 COPY package*.json ./
 COPY shared/package*.json ./shared/
@@ -56,4 +61,3 @@ USER node
 EXPOSE 3000
 
 CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy --schema=./prisma/schema.prisma && node backend/dist/server.js"]
-

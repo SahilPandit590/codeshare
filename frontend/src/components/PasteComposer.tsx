@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { CreatePasteResponse, SupportedLanguage } from '@codeshare/shared';
+import { CreateSnippetResponse, SupportedLanguage } from '@codeshare/shared';
 import { Loader2, Share2, Trash2 } from 'lucide-react';
 import { LanguageSelector } from './LanguageSelector';
 import { Editor } from './Editor';
@@ -16,7 +16,7 @@ export function PasteComposer({ onNavigateToPaste }: PasteComposerProps) {
   const [language, setLanguage] = useState<SupportedLanguage>('text');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [createdPaste, setCreatedPaste] = useState<CreatePasteResponse | null>(null);
+  const [createdPaste, setCreatedPaste] = useState<CreateSnippetResponse | null>(null);
 
   const stats = useMemo(() => {
     const lines = content.length === 0 ? 0 : content.split('\n').length;
@@ -32,7 +32,7 @@ export function PasteComposer({ onNavigateToPaste }: PasteComposerProps) {
     setIsLoading(true);
     setErrorMessage(null);
     try {
-      setCreatedPaste(await api.createPaste({ content, language }));
+      setCreatedPaste(await api.createSnippet({ code: content, language }));
     } catch (err) {
       setErrorMessage(
         err instanceof ApiError
@@ -84,6 +84,9 @@ export function PasteComposer({ onNavigateToPaste }: PasteComposerProps) {
             minHeight="min(620px, 62vh)"
             placeholder="Paste code, logs, notes, or any text you want to share..."
           />
+          <p className="mt-3 text-xs leading-5 text-amber-700 dark:text-amber-300">
+            Do not paste passwords, API keys, private credentials, or other sensitive secrets.
+          </p>
           <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
               <span>{stats.chars.toLocaleString()} characters</span>

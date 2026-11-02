@@ -37,6 +37,11 @@ export interface CreatePasteRequest {
   language?: SupportedLanguage;
 }
 
+export interface CreateSnippetRequest {
+  code: string;
+  language?: SupportedLanguage;
+}
+
 export interface CreatePasteResponse {
   id: string;
   url: string;
@@ -47,9 +52,21 @@ export interface CreatePasteResponse {
   deleteUrl: string;
 }
 
+export interface CreateSnippetResponse extends CreatePasteResponse {
+  shareUrl?: string;
+}
+
 export interface GetPasteResponse {
   id: string;
   content: string;
+  language: SupportedLanguage;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface GetSnippetResponse {
+  id: string;
+  code: string;
   language: SupportedLanguage;
   createdAt: string;
   expiresAt: string;
@@ -75,4 +92,3 @@ export interface HealthResponse {
   database: 'connected' | 'disconnected' | 'unreachable';
   version: string;
 }
-

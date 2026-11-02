@@ -20,7 +20,7 @@ export class PasteService {
    * Generates a cryptographically secure, URL-safe random identifier.
    */
   private generatePublicId(): string {
-    return crypto.randomBytes(9).toString('base64url'); // 12 characters, 72 bits of entropy
+    return crypto.randomBytes(16).toString('base64url'); // 22 characters, 128 bits of entropy
   }
 
   /**
@@ -41,10 +41,6 @@ export class PasteService {
    * Creates a new paste with a 24-hour expiration and a secure deletion token.
    */
   async createPaste(input: CreatePasteRequest): Promise<CreatePasteResponse> {
-    const id = this.generatePublicId();
-    const deleteToken = this.generateDeleteToken();
-    const deleteTokenHash = this.hashDeleteToken(deleteToken);
-
     const now = new Date();
     const expiresAt = new Date(now.getTime() + env.PASTE_EXPIRY_HOURS * 60 * 60 * 1000);
     const language = (input.language || 'text') as SupportedLanguage;
@@ -52,84 +48,101 @@ export class PasteService {
     const maxStorageBytes = env.MAX_STORAGE_MB * 1024 * 1024;
     const contentBytes = Buffer.byteLength(input.content, 'utf8');
 
-    const executeCreation = async (tx: any) => {
-      // In PostgreSQL, serialize capacity check using transaction-scoped advisory lock
-      if (typeof tx.$executeRaw === 'function') {
-        try {
-          await tx.$executeRaw`SELECT pg_advisory_xact_lock(2147483647)`;
-        } catch {
-          // If unsupported in current database dialect or mock, continue
-        }
-      }
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const id = this.generatePublicId();
+      const deleteToken = this.generateDeleteToken();
+      const deleteTokenHash = this.hashDeleteToken(deleteToken);
 
-      // Concurrently-safe capacity check
-      let activeCount = 0;
-      let totalBytes = 0;
-
-      if (typeof tx.$queryRaw === 'function') {
-        try {
-          const stats = await tx.$queryRaw`
-            SELECT COUNT(*)::bigint as count, COALESCE(SUM(octet_length(content)), 0)::bigint as total_bytes
-            FROM "pastes"
-            WHERE "expiresAt" > ${now}
-          `;
-          if (Array.isArray(stats) && stats.length > 0 && stats[0]) {
-            activeCount = Number(stats[0].count ?? 0);
-            totalBytes = Number(stats[0].total_bytes ?? 0);
-          }
-        } catch {
-          if (typeof tx.paste?.count === 'function') {
-            activeCount = await tx.paste.count({
-              where: { expiresAt: { gt: now } },
-            });
+      const executeCreation = async (tx: any) => {
+        // In PostgreSQL, serialize capacity check using transaction-scoped advisory lock
+        if (typeof tx.$executeRaw === 'function') {
+          try {
+            await tx.$executeRaw`SELECT pg_advisory_xact_lock(2147483647)`;
+          } catch {
+            // If unsupported in current database dialect or mock, continue
           }
         }
-      } else if (typeof tx.paste?.count === 'function') {
-        activeCount = await tx.paste.count({
-          where: { expiresAt: { gt: now } },
+
+        // Concurrently-safe capacity check
+        let activeCount = 0;
+        let totalBytes = 0;
+
+        if (typeof tx.$queryRaw === 'function') {
+          try {
+            const stats = await tx.$queryRaw`
+              SELECT COUNT(*)::bigint as count, COALESCE(SUM(octet_length(content)), 0)::bigint as total_bytes
+              FROM "pastes"
+              WHERE "expiresAt" > ${now}
+            `;
+            if (Array.isArray(stats) && stats.length > 0 && stats[0]) {
+              activeCount = Number(stats[0].count ?? 0);
+              totalBytes = Number(stats[0].total_bytes ?? 0);
+            }
+          } catch {
+            if (typeof tx.paste?.count === 'function') {
+              activeCount = await tx.paste.count({
+                where: { expiresAt: { gt: now } },
+              });
+            }
+          }
+        } else if (typeof tx.paste?.count === 'function') {
+          activeCount = await tx.paste.count({
+            where: { expiresAt: { gt: now } },
+          });
+        }
+
+        if (activeCount >= env.MAX_ACTIVE_PASTES) {
+          throw new ServiceUnavailableError('Maximum active paste capacity reached. Please try again later.');
+        }
+
+        if (totalBytes + contentBytes > maxStorageBytes) {
+          throw new ServiceUnavailableError('Active paste storage capacity reached. Please try again later.');
+        }
+
+        await tx.paste.create({
+          data: {
+            id,
+            content: input.content,
+            language,
+            createdAt: now,
+            expiresAt,
+            deleteTokenHash,
+          },
         });
-      }
+      };
 
-      if (activeCount >= env.MAX_ACTIVE_PASTES) {
-        throw new ServiceUnavailableError('Maximum active paste capacity reached. Please try again later.');
-      }
+      try {
+        if (typeof (prisma as any).$transaction === 'function') {
+          await (prisma as any).$transaction(async (tx: any) => {
+            await executeCreation(tx);
+          });
+        } else {
+          await executeCreation(prisma);
+        }
 
-      if (totalBytes + contentBytes > maxStorageBytes) {
-        throw new ServiceUnavailableError('Active paste storage capacity reached. Please try again later.');
-      }
+        const url = `${env.APP_BASE_URL.replace(/\/$/, '')}/p/${id}`;
+        const deleteUrl = `${url}?token=${deleteToken}`;
 
-      await tx.paste.create({
-        data: {
+        return {
           id,
-          content: input.content,
+          url,
           language,
-          createdAt: now,
-          expiresAt,
-          deleteTokenHash,
-        },
-      });
-    };
-
-    if (typeof (prisma as any).$transaction === 'function') {
-      await (prisma as any).$transaction(async (tx: any) => {
-        await executeCreation(tx);
-      });
-    } else {
-      await executeCreation(prisma);
+          createdAt: now.toISOString(),
+          expiresAt: expiresAt.toISOString(),
+          deleteToken,
+          deleteUrl,
+        };
+      } catch (error) {
+        // PostgreSQL/Prisma enforces uniqueness; a collision is retried with
+        // a fresh random ID rather than exposing or reusing an existing row.
+        if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {
+          continue;
+        }
+        throw error;
+      }
     }
 
-    const url = `${env.APP_BASE_URL}/p/${id}`;
-    const deleteUrl = `${env.APP_BASE_URL}/p/${id}?token=${deleteToken}`;
-
-    return {
-      id,
-      url,
-      language,
-      createdAt: now.toISOString(),
-      expiresAt: expiresAt.toISOString(),
-      deleteToken,
-      deleteUrl,
-    };
+    throw new ServiceUnavailableError('Unable to create a unique share identifier. Please try again later.');
   }
 
   /**
@@ -215,4 +228,3 @@ export class PasteService {
 }
 
 export const pasteService = new PasteService();
-

@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import { env } from './config/env';
 import pasteRoutes from './routes/paste.routes';
+import snippetRoutes from './routes/snippet.routes';
 import healthRoutes from './routes/health.routes';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -84,6 +85,7 @@ export function createApp(): Express {
             'https://pagead2.googlesyndication.com',
             ...allowedOrigins,
           ],
+          workerSrc: ["'self'"],
         },
       },
       crossOriginEmbedderPolicy: false,
@@ -138,6 +140,7 @@ export function createApp(): Express {
 
   // API Routes
   app.use('/api/pastes', pasteRoutes);
+  app.use('/api/snippets', snippetRoutes);
   app.use('/api/health', healthRoutes);
 
   // Dedicated /ads.txt endpoint (ensures HTTP 200 text/plain in all environments)
@@ -158,7 +161,7 @@ export function createApp(): Express {
   if (fs.existsSync(frontendDistPath)) {
     app.use(express.static(frontendDistPath));
 
-    // Client-side routing fallback (for /p/:id etc.)
+    // Client-side routing fallback (for /p/:id and /s/:id)
     app.get('*', (req, res, next) => {
       if (req.path.startsWith('/api/')) {
         return next();
@@ -182,4 +185,3 @@ export function createApp(): Express {
 
   return app;
 }
-

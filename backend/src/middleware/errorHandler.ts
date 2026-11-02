@@ -69,16 +69,10 @@ export function errorHandler(
   // Generic internal server error: Never leak internal error message, database error or stack trace in production
   console.error(`[UnhandledError] ${method} ${safePath}:`, err instanceof Error ? err.stack || err.message : err);
 
-  const isProduction = env.NODE_ENV === 'production';
   res.status(500).json({
     error: {
       code: 'INTERNAL_SERVER_ERROR',
-      message: isProduction
-        ? 'An unexpected error occurred. Please try again later.'
-        : err instanceof Error
-        ? err.message
-        : 'Unknown internal error',
+      message: 'An unexpected error occurred. Please try again later.',
     },
   });
 }
-

@@ -31,6 +31,44 @@ const envSchema = z.object({
   RATE_LIMIT_READ_MAX: z.coerce.number().int().positive().default(120),
   RATE_LIMIT_DELETE_WINDOW_MS: z.coerce.number().int().positive().default(60000), // 1 minute
   RATE_LIMIT_DELETE_MAX: z.coerce.number().int().positive().default(20),
+}).superRefine((values, ctx) => {
+  if (values.NODE_ENV !== 'production') return;
+
+  const isUnsafeProductionUrl = (value: string): boolean => {
+    try {
+      const url = new URL(value);
+      return (
+        url.hostname === 'localhost' ||
+        url.hostname === '127.0.0.1' ||
+        url.hostname === '::1' ||
+        url.hostname.includes('YOUR-') ||
+        url.hostname.includes('example.com')
+      );
+    } catch {
+      return true;
+    }
+  };
+
+  for (const key of ['DATABASE_URL', 'DIRECT_URL', 'APP_BASE_URL'] as const) {
+    const value = values[key];
+    if (value && isUnsafeProductionUrl(value)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [key],
+        message: `${key} must point to a real production host`,
+      });
+    }
+  }
+
+  for (const origin of values.CORS_ORIGIN.split(',').map((item) => item.trim()).filter(Boolean)) {
+    if (isUnsafeProductionUrl(origin)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['CORS_ORIGIN'],
+        message: 'CORS_ORIGIN must contain only real production origins',
+      });
+    }
+  }
 });
 
 const parseEnv = () => {
@@ -51,4 +89,3 @@ const parseEnv = () => {
 
 export const env = parseEnv();
 export type Env = z.infer<typeof envSchema>;
-

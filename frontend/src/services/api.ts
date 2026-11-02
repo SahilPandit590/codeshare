@@ -3,8 +3,20 @@ import {
   CreatePasteResponse,
   GetPasteResponse,
   DeletePasteResponse,
+  CreateSnippetRequest,
+  CreateSnippetResponse,
+  GetSnippetResponse,
   ApiErrorResponse,
 } from '@codeshare/shared';
+
+// Leave empty for the current single-service deployment, where the frontend
+// and API share an origin. Set VITE_API_URL to a backend origin for split
+// frontend/backend deployments.
+const apiBaseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
+function apiUrl(path: string): string {
+  return `${apiBaseUrl}${path}`;
+}
 
 export class ApiError extends Error {
   public readonly status: number;
@@ -40,7 +52,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
 export const api = {
   async createPaste(payload: CreatePasteRequest): Promise<CreatePasteResponse> {
-    const res = await fetch('/api/pastes', {
+    const res = await fetch(apiUrl('/api/pastes'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -50,8 +62,19 @@ export const api = {
     return handleResponse<CreatePasteResponse>(res);
   },
 
+  async createSnippet(payload: CreateSnippetRequest): Promise<CreateSnippetResponse> {
+    const res = await fetch(apiUrl('/api/snippets'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    return handleResponse<CreateSnippetResponse>(res);
+  },
+
   async getPaste(id: string): Promise<GetPasteResponse> {
-    const res = await fetch(`/api/pastes/${encodeURIComponent(id)}`, {
+    const res = await fetch(apiUrl(`/api/pastes/${encodeURIComponent(id)}`), {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -60,8 +83,18 @@ export const api = {
     return handleResponse<GetPasteResponse>(res);
   },
 
+  async getSnippet(id: string): Promise<GetSnippetResponse> {
+    const res = await fetch(apiUrl(`/api/snippets/${encodeURIComponent(id)}`), {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+    return handleResponse<GetSnippetResponse>(res);
+  },
+
   async deletePaste(id: string, token: string): Promise<DeletePasteResponse> {
-    const res = await fetch(`/api/pastes/${encodeURIComponent(id)}`, {
+    const res = await fetch(apiUrl(`/api/pastes/${encodeURIComponent(id)}`), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -71,4 +104,3 @@ export const api = {
     return handleResponse<DeletePasteResponse>(res);
   },
 };
-

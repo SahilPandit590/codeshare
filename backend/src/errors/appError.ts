@@ -55,3 +55,8 @@ export class ServiceUnavailableError extends AppError {
   }
 }
 
+export class DatabaseUnavailableError extends AppError {
+  constructor(message = 'CodeShare is temporarily unavailable. Please try again later.') {
+    super(message, 503, 'DATABASE_UNAVAILABLE');
+  }
+}
