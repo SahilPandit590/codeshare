@@ -9,10 +9,10 @@ interface StatusBannerProps {
 
 export const StatusBanner: React.FC<StatusBannerProps> = ({ type, message, onClose }) => {
   const styles = {
-    error: 'bg-red-500/10 border-red-500/30 text-red-300',
-    success: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300',
-    warning: 'bg-amber-500/10 border-amber-500/30 text-amber-300',
-    info: 'bg-blue-500/10 border-blue-500/30 text-blue-300',
+    error: 'bg-red-50 border-red-200 text-red-700 dark:bg-red-500/10 dark:border-red-500/30 dark:text-red-300',
+    success: 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-300',
+    warning: 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-300',
+    info: 'bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-500/10 dark:border-blue-500/30 dark:text-blue-300',
   };
 
   const icons = {
@@ -34,7 +34,7 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({ type, message, onClo
       {onClose && (
         <button
           onClick={onClose}
-          className="ml-4 text-slate-400 hover:text-slate-200 transition-colors p-1"
+           className="ml-4 p-1 text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
           aria-label="Close message"
         >
           <X className="w-4 h-4" />
@@ -43,4 +43,3 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({ type, message, onClo
     </div>
   );
 };
-

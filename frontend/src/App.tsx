@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { HomePage } from './pages/HomePage';
 import { PasteViewPage } from './pages/PasteViewPage';
 import { AboutPage } from './pages/AboutPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { TermsPage } from './pages/TermsPage';
+import { CreatePastePage } from './pages/CreatePastePage';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 type RouteState =
   | { page: 'home' }
+  | { page: 'create' }
   | { page: 'view'; pasteId: string; token?: string }
   | { page: 'about' }
   | { page: 'privacy' }
@@ -22,6 +25,10 @@ function resolveRoute(): RouteState {
     if (id) {
       return { page: 'view', pasteId: id, token };
     }
+  }
+
+  if (path === '/create') {
+    return { page: 'create' };
   }
 
   if (path === '/about') {
@@ -53,7 +60,8 @@ export function App() {
   }, []);
 
   const navigateToPaste = (id: string, token?: string) => {
-    const url = token ? `/p/${id}?token=${encodeURIComponent(token)}` : `/p/${id}`;
+    // Keep a creator's token in React memory only. It is never added to the URL.
+    const url = `/p/${id}`;
     window.history.pushState({}, '', url);
     setCurrentRoute({ page: 'view', pasteId: id, token });
   };
@@ -61,6 +69,11 @@ export function App() {
   const navigateHome = () => {
     window.history.pushState({}, '', '/');
     setCurrentRoute({ page: 'home' });
+  };
+
+  const navigateCreate = () => {
+    window.history.pushState({}, '', '/create');
+    setCurrentRoute({ page: 'create' });
   };
 
   const navigateAbout = () => {
@@ -78,40 +91,42 @@ export function App() {
     setCurrentRoute({ page: 'terms' });
   };
 
+  let page: ReactNode;
+
   if (currentRoute.page === 'about') {
-    return (
-      <AboutPage
+    page = <AboutPage onNavigateHome={navigateHome} onNavigateCreate={navigateCreate} onNavigatePrivacy={navigatePrivacy} onNavigateTerms={navigateTerms} />;
+  } else if (currentRoute.page === 'privacy') {
+    page = <PrivacyPolicyPage onNavigateHome={navigateHome} onNavigateCreate={navigateCreate} onNavigateTerms={navigateTerms} />;
+  } else if (currentRoute.page === 'terms') {
+    page = <TermsPage onNavigateHome={navigateHome} onNavigateCreate={navigateCreate} onNavigatePrivacy={navigatePrivacy} />;
+  } else if (currentRoute.page === 'create') {
+    page = (
+      <CreatePastePage
         onNavigateHome={navigateHome}
+        onNavigateCreate={navigateCreate}
+        onNavigateToPaste={navigateToPaste}
+        onNavigateAbout={navigateAbout}
         onNavigatePrivacy={navigatePrivacy}
         onNavigateTerms={navigateTerms}
       />
     );
-  }
-
-  if (currentRoute.page === 'privacy') {
-    return (
-      <PrivacyPolicyPage
-        onNavigateHome={navigateHome}
-        onNavigateTerms={navigateTerms}
-      />
-    );
-  }
-
-  if (currentRoute.page === 'terms') {
-    return (
-      <TermsPage
-        onNavigateHome={navigateHome}
-        onNavigatePrivacy={navigatePrivacy}
-      />
-    );
-  }
-
-  if (currentRoute.page === 'view' && currentRoute.pasteId) {
-    return (
+  } else if (currentRoute.page === 'view' && currentRoute.pasteId) {
+    page = (
       <PasteViewPage
         pasteId={currentRoute.pasteId}
         initialToken={currentRoute.token}
         onNavigateHome={navigateHome}
+        onNavigateCreate={navigateCreate}
+        onNavigateAbout={navigateAbout}
+        onNavigatePrivacy={navigatePrivacy}
+        onNavigateTerms={navigateTerms}
+      />
+    );
+  } else {
+    page = (
+      <HomePage
+        onNavigateToPaste={navigateToPaste}
+        onNavigateCreate={navigateCreate}
         onNavigateAbout={navigateAbout}
         onNavigatePrivacy={navigatePrivacy}
         onNavigateTerms={navigateTerms}
@@ -119,12 +134,5 @@ export function App() {
     );
   }
 
-  return (
-    <HomePage
-      onNavigateToPaste={navigateToPaste}
-      onNavigateAbout={navigateAbout}
-      onNavigatePrivacy={navigatePrivacy}
-      onNavigateTerms={navigateTerms}
-    />
-  );
+  return <ThemeProvider>{page}</ThemeProvider>;
 }

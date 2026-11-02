@@ -16,18 +16,18 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   return (
     <div className="flex items-center space-x-2">
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
           <Code className="w-4 h-4" />
         </div>
         <select
           value={value}
           onChange={(e) => onChange(e.target.value as SupportedLanguage)}
           disabled={disabled}
-          className="pl-9 pr-8 py-1.5 bg-slate-900 border border-slate-700/80 hover:border-slate-600 focus:border-blue-500 rounded-lg text-sm font-medium text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50 cursor-pointer"
+           className="cursor-pointer rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-8 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700/80 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-600"
           aria-label="Select programming language"
         >
           {SUPPORTED_LANGUAGES.map((lang) => (
-            <option key={lang} value={lang} className="bg-slate-900 text-slate-200">
+             <option key={lang} value={lang} className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-200">
               {LANGUAGE_LABELS[lang]}
             </option>
           ))}
@@ -36,4 +36,3 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
     </div>
   );
 };
-

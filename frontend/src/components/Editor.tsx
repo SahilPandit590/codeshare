@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { SupportedLanguage } from '@codeshare/shared';
 import { Loader2 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface EditorProps {
   value: string;
@@ -37,6 +38,7 @@ export const Editor: React.FC<EditorProps> = ({
   placeholder = 'Paste or type your code / text here...',
 }) => {
   const [useFallback, setUseFallback] = useState(false);
+  const { theme } = useTheme();
   const monacoLang = MONACO_LANG_MAP[language] || 'plaintext';
 
   // Handle Tab key in fallback textarea for natural code editing
@@ -56,7 +58,7 @@ export const Editor: React.FC<EditorProps> = ({
 
   if (useFallback) {
     return (
-      <div className="relative w-full rounded-xl overflow-hidden border border-slate-800 bg-slate-950 font-mono text-sm">
+      <div className="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 font-mono text-sm dark:border-slate-800 dark:bg-slate-950">
         <textarea
           value={value}
           readOnly={readOnly}
@@ -64,7 +66,7 @@ export const Editor: React.FC<EditorProps> = ({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           style={{ minHeight }}
-          className="w-full h-full p-4 bg-transparent text-slate-100 resize-y focus:outline-none focus:ring-1 focus:ring-blue-500/50 leading-relaxed font-mono"
+          className="h-full w-full resize-y bg-transparent p-4 leading-relaxed text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500/50 dark:text-slate-100 dark:placeholder-slate-600"
           spellCheck={false}
           autoComplete="off"
           autoCorrect="off"
@@ -76,13 +78,13 @@ export const Editor: React.FC<EditorProps> = ({
 
   return (
     <div
-      className="relative w-full rounded-xl overflow-hidden border border-slate-800/80 bg-slate-950 shadow-2xl transition-all"
+      className="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm transition-all dark:border-slate-800/80 dark:bg-slate-950"
       style={{ minHeight }}
     >
       <MonacoEditor
         height={minHeight}
         language={monacoLang}
-        theme="vs-dark"
+         theme={theme === 'dark' ? 'vs-dark' : 'vs'}
         value={value}
         onChange={(val) => onChange?.(val || '')}
         options={{
@@ -102,12 +104,12 @@ export const Editor: React.FC<EditorProps> = ({
           quickSuggestions: false,
         }}
         loading={
-          <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-slate-400 space-y-3">
+            <div className="flex h-full min-h-[400px] flex-col items-center justify-center space-y-3 text-slate-500 dark:text-slate-400">
             <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
             <span className="text-xs font-mono">Initializing editor...</span>
             <button
               onClick={() => setUseFallback(true)}
-              className="text-xs text-blue-400 hover:underline pt-2"
+              className="pt-2 text-xs text-blue-600 hover:underline dark:text-blue-400"
             >
               Switch to lightweight editor
             </button>

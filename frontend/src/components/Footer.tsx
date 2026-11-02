@@ -5,57 +5,23 @@ interface FooterProps {
   onNavigateTerms?: () => void;
 }
 
-export function Footer({
-  onNavigateHome,
-  onNavigateAbout,
-  onNavigatePrivacy,
-  onNavigateTerms,
-}: FooterProps) {
+export function Footer({ onNavigateHome, onNavigateAbout, onNavigatePrivacy, onNavigateTerms }: FooterProps) {
   return (
-    <footer className="w-full border-t border-slate-800 bg-slate-900/40 py-6 mt-auto">
-      <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-slate-200">CodeShare</span>
-          <span>&copy; {new Date().getFullYear()}</span>
-          <span className="text-slate-600">&bull;</span>
-          <span>Anonymous, ephemeral code and text sharing.</span>
+    <footer className="border-t border-slate-200/80 bg-slate-50/70 dark:border-slate-800 dark:bg-slate-900/30">
+      <div className="page-container flex flex-col gap-5 py-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="font-semibold text-slate-950 dark:text-white">CodeShare</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Anonymous, ephemeral code and text sharing.</p>
         </div>
-        <div className="flex items-center gap-4">
-          {onNavigateHome && (
-            <button
-              onClick={onNavigateHome}
-              className="text-slate-400 hover:text-emerald-400 transition-colors cursor-pointer"
-            >
-              Home
-            </button>
-          )}
-          {onNavigateAbout && (
-            <button
-              onClick={onNavigateAbout}
-              className="text-slate-400 hover:text-emerald-400 transition-colors cursor-pointer"
-            >
-              About
-            </button>
-          )}
-          {onNavigatePrivacy && (
-            <button
-              onClick={onNavigatePrivacy}
-              className="text-slate-400 hover:text-emerald-400 transition-colors cursor-pointer"
-            >
-              Privacy Policy
-            </button>
-          )}
-          {onNavigateTerms && (
-            <button
-              onClick={onNavigateTerms}
-              className="text-slate-400 hover:text-emerald-400 transition-colors cursor-pointer"
-            >
-              Terms of Service
-            </button>
-          )}
-        </div>
+        <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm" aria-label="Footer navigation">
+          {onNavigateHome && <button type="button" onClick={onNavigateHome} className="footer-link">Home</button>}
+          {onNavigateAbout && <button type="button" onClick={onNavigateAbout} className="footer-link">About</button>}
+          {onNavigatePrivacy && <button type="button" onClick={onNavigatePrivacy} className="footer-link">Privacy Policy</button>}
+          {onNavigateTerms && <button type="button" onClick={onNavigateTerms} className="footer-link">Terms of Service</button>}
+          <a className="footer-link" href="mailto:contact@example.com">Contact</a>
+        </nav>
       </div>
+      <div className="page-container border-t border-slate-200/70 py-4 text-xs text-slate-500 dark:border-slate-800/70 dark:text-slate-500">© {new Date().getFullYear()} CodeShare</div>
     </footer>
   );
 }
-
