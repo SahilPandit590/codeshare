@@ -16,10 +16,10 @@ describe('Frontend Component Tests', () => {
     cleanup();
   });
   describe('Header Component', () => {
-    it('renders CodeShare branding, tagline, and 24h expiry badge', () => {
+    it('renders Code Snipper branding, tagline, and 24h expiry badge', () => {
       render(<Header />);
 
-      expect(screen.getByText('CodeShare')).toBeDefined();
+      expect(screen.getByText('Code Snipper')).toBeDefined();
       expect(screen.getByText('Share text. Share code. Keep it temporary.')).toBeDefined();
       expect(screen.getByText('24h Expiry')).toBeDefined();
     });

@@ -1,0 +1,17 @@
+{
+  "name": "Code Snipper",
+  "short_name": "Code Snipper",
+  "description": "Code Snipper lets you quickly paste, store, and share code snippets through simple, secure sharing links.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

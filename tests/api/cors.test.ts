@@ -11,7 +11,7 @@ describe('CORS & Static Asset Handling', () => {
     // Static frontend requests attach an Origin header in browser builds.
     const res = await request(app)
       .get('/index.html')
-      .set('Origin', 'https://codeshare.onrender.com');
+      .set('Origin', 'https://snipper.work.gd');
 
     // Must NOT return 500 "Blocked by CORS policy"
     expect(res.status).toBe(200);

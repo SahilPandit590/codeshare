@@ -50,7 +50,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 Share code and text with a link that stays simple.
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600 dark:text-slate-400">
-                CodeShare turns a snippet, log, or note into a clean shareable link in seconds. No account. No clutter. Automatically gone after 24 hours.
+                Code Snipper turns a snippet, log, or note into a clean shareable link in seconds. No account. No clutter. Automatically gone after 24 hours.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <button type="button" onClick={create} className="button-primary justify-center px-5 py-3 text-sm">

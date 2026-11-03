@@ -153,7 +153,7 @@ export function createApp(): Express {
     if (fs.existsSync(publicAdsTxtPath)) {
       return res.type('text/plain').sendFile(publicAdsTxtPath);
     }
-    res.type('text/plain').send('# Google AdSense ads.txt for CodeShare\n# Replace with your actual publisher account ID after approval\ngoogle.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0\n');
+    res.type('text/plain').send('# Google AdSense ads.txt for Code Snipper\n# Replace with your actual publisher account ID after approval\ngoogle.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0\n');
   });
 
   // In production, serve the built frontend static files

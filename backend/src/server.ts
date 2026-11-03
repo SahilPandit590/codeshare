@@ -19,7 +19,7 @@ async function bootstrap() {
 
   const server = app.listen(env.PORT, '0.0.0.0', () => {
     console.log(`===============================================`);
-    console.log(`  CodeShare Server running on 0.0.0.0:${env.PORT}`);
+    console.log(`  Code Snipper Server running on 0.0.0.0:${env.PORT}`);
     console.log(`  Environment: ${env.NODE_ENV}`);
     console.log(`  App URL:     ${env.APP_BASE_URL}`);
     console.log(`===============================================`);
@@ -70,4 +70,3 @@ bootstrap().catch((err) => {
   console.error('[Bootstrap] Fatal startup error:', err);
   process.exit(1);
 });
-

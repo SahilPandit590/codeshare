@@ -18,7 +18,7 @@ export function PrivacyPolicyPage({ onNavigateHome, onNavigateCreate, onNavigate
             onClick={onNavigateHome}
             className="back-link"
           >
-            &larr; Back to CodeShare
+            &larr; Back to Code Snipper
           </button>
         </div>
 
@@ -33,7 +33,7 @@ export function PrivacyPolicyPage({ onNavigateHome, onNavigateCreate, onNavigate
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-200">1. Overview and Core Philosophy</h2>
             <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              CodeShare is designed from the ground up for minimal data collection. We do not require registration, user accounts, email addresses, or personal identity verification. Pastes are shared anonymously and are designed to expire and be purged permanently within 24 hours of creation.
+              Code Snipper is designed from the ground up for minimal data collection. We do not require registration, user accounts, email addresses, or personal identity verification. Pastes are shared anonymously and are designed to expire and be purged permanently within 24 hours of creation.
             </p>
           </section>
 
@@ -89,7 +89,7 @@ export function PrivacyPolicyPage({ onNavigateHome, onNavigateCreate, onNavigate
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-200">5. Contact &amp; Abuse Reporting</h2>
             <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              If you discover content on CodeShare that violates legal statutes or terms of service, please contact our abuse contact immediately:
+              If you discover content on Code Snipper that violates legal statutes or terms of service, please contact our abuse contact immediately:
             </p>
             <div className="rounded border border-amber-200 bg-amber-50 p-3 font-mono text-xs text-amber-700 dark:border-amber-900/40 dark:bg-slate-900 dark:text-amber-300">
               [OWNER TO CONFIGURE: Contact email for privacy and abuse inquiries: contact@example.com]

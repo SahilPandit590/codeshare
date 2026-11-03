@@ -33,7 +33,7 @@ describe('Paste API Endpoints', () => {
     it('creates a paste successfully with valid input', async () => {
       (prisma.paste.create as any).mockResolvedValue({
         id: 'mock-id-1234',
-        content: 'console.log("Hello, CodeShare!");',
+        content: 'console.log("Hello, Code Snipper!");',
         language: 'javascript',
         createdAt: new Date(),
         expiresAt: new Date(Date.now() + 24 * 3600 * 1000),
@@ -43,7 +43,7 @@ describe('Paste API Endpoints', () => {
       const response = await request(app)
         .post('/api/pastes')
         .send({
-          content: 'console.log("Hello, CodeShare!");',
+          content: 'console.log("Hello, Code Snipper!");',
           language: 'javascript',
         });
 
@@ -57,7 +57,7 @@ describe('Paste API Endpoints', () => {
 
       expect(prisma.paste.create).toHaveBeenCalledOnce();
       const createArgs = (prisma.paste.create as any).mock.calls[0][0];
-      expect(createArgs.data.content).toBe('console.log("Hello, CodeShare!");');
+      expect(createArgs.data.content).toBe('console.log("Hello, Code Snipper!");');
       expect(createArgs.data.deleteTokenHash).toBeDefined();
     });
 
@@ -421,4 +421,3 @@ describe('Paste API Endpoints', () => {
     });
   });
 });
-

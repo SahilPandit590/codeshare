@@ -1,8 +1,8 @@
-# CodeShare
+# Code Snipper
 
-> **Share text. Share code. Keep it temporary.**
+> **Share code instantly. Keep it temporary.**
 
-A secure, anonymous, temporary text and code-sharing platform designed for production readiness, minimal overhead, and zero data leakage. Pastes strictly expire and become inaccessible 24 hours after creation.
+Code Snipper is a secure, anonymous, temporary text and code-sharing platform designed for production readiness, minimal overhead, and zero data leakage. Paste, store, and share code through simple links; pastes strictly expire and become inaccessible 24 hours after creation.
 
 ---
 
@@ -208,4 +208,3 @@ Test coverage includes:
 ## License
 
 MIT
-

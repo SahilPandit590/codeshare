@@ -209,7 +209,7 @@ describe('AdSense Monetization & Free-Tier Guard Tests', () => {
     it('renders About Page with purpose and architecture principles', () => {
       render(<AboutPage onNavigateHome={vi.fn()} onNavigatePrivacy={vi.fn()} onNavigateTerms={vi.fn()} />);
 
-      expect(screen.getByText('About CodeShare')).toBeDefined();
+      expect(screen.getByText('About Code Snipper')).toBeDefined();
       expect(screen.getByText('Our Purpose')).toBeDefined();
       expect(screen.getByText('Key Architecture Principles')).toBeDefined();
     });

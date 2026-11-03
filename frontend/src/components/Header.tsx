@@ -29,10 +29,10 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/90">
       <div className="page-container flex h-16 items-center justify-between">
-        <button type="button" onClick={() => navigate(onNavigateHome ?? onNewPaste)} className="flex items-center gap-3 text-left" aria-label="Go to CodeShare home">
+        <button type="button" onClick={() => navigate(onNavigateHome ?? onNewPaste)} className="flex items-center gap-3 text-left" aria-label="Go to Code Snipper home">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-600/20"><Code2 className="h-5 w-5" /></span>
           <span>
-            <span className="block text-base font-bold tracking-tight text-slate-950 dark:text-white">CodeShare</span>
+            <span className="block text-base font-bold tracking-tight text-slate-950 dark:text-white">Code Snipper</span>
             <span className="hidden text-[11px] text-slate-500 dark:text-slate-400 sm:block">Share text. Share code. Keep it temporary.</span>
           </span>
         </button>

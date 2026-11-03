@@ -10,7 +10,7 @@ export function Footer({ onNavigateHome, onNavigateAbout, onNavigatePrivacy, onN
     <footer className="border-t border-slate-200/80 bg-slate-50/70 dark:border-slate-800 dark:bg-slate-900/30">
       <div className="page-container flex flex-col gap-5 py-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="font-semibold text-slate-950 dark:text-white">CodeShare</p>
+          <p className="font-semibold text-slate-950 dark:text-white">Code Snipper</p>
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Anonymous, ephemeral code and text sharing.</p>
         </div>
         <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm" aria-label="Footer navigation">
@@ -21,7 +21,7 @@ export function Footer({ onNavigateHome, onNavigateAbout, onNavigatePrivacy, onN
           <a className="footer-link" href="mailto:contact@example.com">Contact</a>
         </nav>
       </div>
-      <div className="page-container border-t border-slate-200/70 py-4 text-xs text-slate-500 dark:border-slate-800/70 dark:text-slate-500">© {new Date().getFullYear()} CodeShare</div>
+      <div className="page-container border-t border-slate-200/70 py-4 text-xs text-slate-500 dark:border-slate-800/70 dark:text-slate-500">© {new Date().getFullYear()} Code Snipper</div>
     </footer>
   );
 }

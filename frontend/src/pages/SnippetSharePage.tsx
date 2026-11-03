@@ -76,7 +76,7 @@ export const SnippetSharePage: React.FC<SnippetSharePageProps> = ({
         setErrorMessage(error.message);
       } else {
         setErrorStatus(503);
-        setErrorMessage('CodeShare is temporarily unavailable. Please try again in a moment.');
+        setErrorMessage('Code Snipper is temporarily unavailable. Please try again in a moment.');
       }
     });
 

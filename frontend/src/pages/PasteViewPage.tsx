@@ -106,7 +106,7 @@ export const PasteViewPage: React.FC<PasteViewPageProps> = ({ pasteId, initialTo
   );
 
   if (isLoading) return shell(<main className="flex flex-1 flex-col items-center justify-center gap-3 py-20"><Loader2 className="h-7 w-7 animate-spin text-blue-600" /><p className="text-sm text-slate-500 dark:text-slate-400">Loading secure paste…</p></main>);
-  if (deleteSuccess) return shell(<StateCard title="Paste permanently deleted" message="This paste has been removed from CodeShare and is no longer accessible by anyone." icon={<Check className="h-7 w-7" />} onNavigateHome={onNavigateHome} />);
+  if (deleteSuccess) return shell(<StateCard title="Paste permanently deleted" message="This paste has been removed from Code Snipper and is no longer accessible by anyone." icon={<Check className="h-7 w-7" />} onNavigateHome={onNavigateHome} />);
   if (errorStatus === 410) return shell(<StateCard title="Paste Expired" message="This paste reached its 24-hour expiration limit and has been securely purged." icon={<Hourglass className="h-7 w-7" />} onNavigateHome={onNavigateHome} />);
   if (errorStatus === 404) return shell(<StateCard title="Paste Not Found" message="The link may be incorrect, or the paste was already deleted by its creator." icon={<FileX className="h-7 w-7" />} onNavigateHome={onNavigateHome} />);
   if (errorMessage && !paste) return shell(<StateCard title="Error Loading Paste" message={errorMessage} icon={<AlertTriangle className="h-7 w-7" />} onNavigateHome={onNavigateHome} />);

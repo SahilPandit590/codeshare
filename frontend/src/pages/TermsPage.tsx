@@ -18,7 +18,7 @@ export function TermsPage({ onNavigateHome, onNavigateCreate, onNavigatePrivacy 
             onClick={onNavigateHome}
             className="back-link"
           >
-            &larr; Back to CodeShare
+            &larr; Back to Code Snipper
           </button>
         </div>
 
@@ -33,14 +33,14 @@ export function TermsPage({ onNavigateHome, onNavigateCreate, onNavigatePrivacy 
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-200">1. Acceptance of Terms</h2>
             <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              By accessing or using CodeShare, you agree to be bound by these Terms of Service. If you do not agree to these terms, do not access or use the service.
+              By accessing or using Code Snipper, you agree to be bound by these Terms of Service. If you do not agree to these terms, do not access or use the service.
             </p>
           </section>
 
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-200">2. Description of Service</h2>
             <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              CodeShare provides temporary, anonymous text and source code sharing. All content submitted to the service is ephemeral and will expire and be purged automatically 24 hours after creation. You are solely responsible for keeping backups of any data you submit.
+              Code Snipper provides temporary, anonymous text and source code sharing. All content submitted to the service is ephemeral and will expire and be purged automatically 24 hours after creation. You are solely responsible for keeping backups of any data you submit.
             </p>
           </section>
 
@@ -61,7 +61,7 @@ export function TermsPage({ onNavigateHome, onNavigateCreate, onNavigatePrivacy 
           <section className="space-y-3">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-200">4. Disclaimer of Warranties &amp; Limitation of Liability</h2>
             <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              The service is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis without warranties of any kind. CodeShare disclaims all warranties, express or implied, including merchantability, fitness for a particular purpose, and non-infringement. In no event shall CodeShare or its operators be liable for lost data, lost profits, or consequential damages.
+              The service is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis without warranties of any kind. Code Snipper disclaims all warranties, express or implied, including merchantability, fitness for a particular purpose, and non-infringement. In no event shall Code Snipper or its operators be liable for lost data, lost profits, or consequential damages.
             </p>
           </section>
 
