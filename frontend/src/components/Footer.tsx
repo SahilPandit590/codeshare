@@ -1,3 +1,5 @@
+import { SMARTLINK_URL } from '../config/ads';
+
 interface FooterProps {
   onNavigateHome?: () => void;
   onNavigateAbout?: () => void;
@@ -23,6 +25,7 @@ export function Footer({ onNavigateHome, onNavigateAbout, onNavigatePrivacy, onN
           <a href="/pastebin-alternative" className="footer-link">Pastebin alternative</a>
           {onNavigatePrivacy && <a href="/privacy" onClick={(event) => { event.preventDefault(); onNavigatePrivacy(); }} className="footer-link">Privacy Policy</a>}
           {onNavigateTerms && <a href="/terms" onClick={(event) => { event.preventDefault(); onNavigateTerms(); }} className="footer-link">Terms of Service</a>}
+          <a href={SMARTLINK_URL} target="_blank" rel="noopener noreferrer" className="footer-link">Sponsored · Support us</a>
           <a className="footer-link" href="mailto:contact@example.com">Contact</a>
         </nav>
       </div>

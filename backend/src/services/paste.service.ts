@@ -15,12 +15,30 @@ import {
   ServiceUnavailableError,
 } from '../errors/appError';
 
+const SHORT_CODE_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const SHORT_CODE_LENGTH = 6;
+
+interface CreatePasteOptions {
+  generateShortCode?: boolean;
+}
+
 export class PasteService {
   /**
    * Generates a cryptographically secure, URL-safe random identifier.
    */
   private generatePublicId(): string {
     return crypto.randomBytes(16).toString('base64url'); // 22 characters, 128 bits of entropy
+  }
+
+  /**
+   * Generates a cryptographically secure, unbiased six-character share code.
+   */
+  private generateShortCode(): string {
+    let code = '';
+    for (let index = 0; index < SHORT_CODE_LENGTH; index += 1) {
+      code += SHORT_CODE_ALPHABET[crypto.randomInt(SHORT_CODE_ALPHABET.length)];
+    }
+    return code;
   }
 
   /**
@@ -40,7 +58,7 @@ export class PasteService {
   /**
    * Creates a new paste with a 24-hour expiration and a secure deletion token.
    */
-  async createPaste(input: CreatePasteRequest): Promise<CreatePasteResponse> {
+  async createPaste(input: CreatePasteRequest, options: CreatePasteOptions = {}): Promise<CreatePasteResponse> {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + env.PASTE_EXPIRY_HOURS * 60 * 60 * 1000);
     const language = (input.language || 'text') as SupportedLanguage;
@@ -50,6 +68,7 @@ export class PasteService {
 
     for (let attempt = 0; attempt < 5; attempt += 1) {
       const id = this.generatePublicId();
+      const shortCode = options.generateShortCode ? this.generateShortCode() : undefined;
       const deleteToken = this.generateDeleteToken();
       const deleteTokenHash = this.hashDeleteToken(deleteToken);
 
@@ -102,6 +121,7 @@ export class PasteService {
         await tx.paste.create({
           data: {
             id,
+            ...(shortCode ? { shortCode } : {}),
             content: input.content,
             language,
             createdAt: now,
@@ -120,11 +140,12 @@ export class PasteService {
           await executeCreation(prisma);
         }
 
-        const url = `${env.APP_BASE_URL.replace(/\/$/, '')}/p/${id}`;
+        const url = `${env.PUBLIC_SHARE_ORIGIN.replace(/\/$/, '')}/p/${id}`;
         const deleteUrl = `${url}?token=${deleteToken}`;
 
         return {
           id,
+          ...(shortCode ? { shortCode } : {}),
           url,
           language,
           createdAt: now.toISOString(),
@@ -133,8 +154,8 @@ export class PasteService {
           deleteUrl,
         };
       } catch (error) {
-        // PostgreSQL/Prisma enforces uniqueness; a collision is retried with
-        // a fresh random ID rather than exposing or reusing an existing row.
+        // PostgreSQL/Prisma enforces uniqueness; an ID or short-code collision
+        // is retried with fresh random identifiers.
         if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {
           continue;
         }
@@ -154,6 +175,31 @@ export class PasteService {
       where: { id },
     });
 
+    return this.toPasteResponse(paste);
+  }
+
+  /**
+   * Retrieves a paste by its legacy internal ID or its short snippet code.
+   * The internal ID is checked first so every existing sharing link keeps its
+   * original meaning, even if an old ID happens to look like a short code.
+   */
+  async getPasteByPublicIdentifier(identifier: string): Promise<GetPasteResponse> {
+    const pasteById = await prisma.paste.findUnique({
+      where: { id: identifier },
+    });
+
+    if (pasteById) {
+      return this.toPasteResponse(pasteById);
+    }
+
+    const pasteByShortCode = await prisma.paste.findUnique({
+      where: { shortCode: identifier },
+    });
+
+    return this.toPasteResponse(pasteByShortCode);
+  }
+
+  private toPasteResponse(paste: any): GetPasteResponse {
     if (!paste) {
       throw new NotFoundError('Paste not found');
     }

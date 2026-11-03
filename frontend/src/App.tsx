@@ -43,6 +43,10 @@ function resolveRoute(): RouteState {
     }
   }
 
+  if (/^\/[A-Za-z0-9]{6}$/.test(path)) {
+    return { page: 'snippet', snippetId: path.slice(1) };
+  }
+
   if (path === '/create') {
     return { page: 'create' };
   }

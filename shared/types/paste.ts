@@ -44,6 +44,7 @@ export interface CreateSnippetRequest {
 
 export interface CreatePasteResponse {
   id: string;
+  shortCode?: string;
   url: string;
   language: SupportedLanguage;
   createdAt: string;

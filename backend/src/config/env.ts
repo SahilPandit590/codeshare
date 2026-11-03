@@ -17,6 +17,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url().default('postgresql://postgres:postgres@localhost:5432/codeshare?schema=public'),
   DIRECT_URL: z.string().optional(),
   APP_BASE_URL: z.string().url().default('http://localhost:5173'),
+  PUBLIC_SHARE_ORIGIN: z.string().url().default('https://snipper.work.gd'),
   CORS_ORIGIN: z.string().default('http://localhost:5173,http://localhost:3000'),
   MAX_PASTE_SIZE_BYTES: z.coerce.number().int().positive().default(524288), // 512 KB
   MAX_STORAGE_MB: z.coerce.number().int().positive().default(500), // 500 MB max active storage
@@ -49,7 +50,7 @@ const envSchema = z.object({
     }
   };
 
-  for (const key of ['DATABASE_URL', 'DIRECT_URL', 'APP_BASE_URL'] as const) {
+  for (const key of ['DATABASE_URL', 'DIRECT_URL', 'APP_BASE_URL', 'PUBLIC_SHARE_ORIGIN'] as const) {
     const value = values[key];
     if (value && isUnsafeProductionUrl(value)) {
       ctx.addIssue({

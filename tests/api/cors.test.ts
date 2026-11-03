@@ -47,6 +47,11 @@ describe('CORS & Static Asset Handling', () => {
     expect(shared.text).toContain('<meta name="robots" content="noindex,nofollow" />');
     expect(shared.text).toContain('<link rel="canonical" href="https://snipper.work.gd/p/server-rendered-id" />');
 
+    const shortCode = await request(app).get('/abc6aD').set('Accept', 'text/html');
+    expect(shortCode.status).toBe(200);
+    expect(shortCode.text).toContain('<meta name="robots" content="noindex,nofollow" />');
+    expect(shortCode.text).toContain('<link rel="canonical" href="https://snipper.work.gd/abc6aD" />');
+
     const missing = await request(app).get('/does-not-exist').set('Accept', 'text/html');
     expect(missing.status).toBe(404);
     expect(missing.text).toContain('<meta name="robots" content="noindex,nofollow" />');

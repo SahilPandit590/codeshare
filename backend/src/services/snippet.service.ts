@@ -3,8 +3,8 @@ import { env } from '../config/env';
 import { DatabaseUnavailableError, AppError } from '../errors/appError';
 import { pasteService } from './paste.service';
 
-function shareUrl(id: string): string {
-  return new URL(`/s/${id}`, `${env.APP_BASE_URL.replace(/\/$/, '')}/`).toString();
+function shareUrl(shortCode: string): string {
+  return new URL(`/${shortCode}`, `${env.PUBLIC_SHARE_ORIGIN.replace(/\/$/, '')}/`).toString();
 }
 
 export class SnippetService {
@@ -13,8 +13,11 @@ export class SnippetService {
       const paste = await pasteService.createPaste({
         content: input.code,
         language: input.language,
-      });
-      const url = shareUrl(paste.id);
+      }, { generateShortCode: true });
+      if (!paste.shortCode) {
+        throw new DatabaseUnavailableError();
+      }
+      const url = shareUrl(paste.shortCode);
 
       return {
         ...paste,
@@ -31,7 +34,7 @@ export class SnippetService {
 
   async getSnippetById(id: string): Promise<GetSnippetResponse> {
     try {
-      const paste = await pasteService.getPasteById(id);
+      const paste = await pasteService.getPasteByPublicIdentifier(id);
       return {
         id: paste.id,
         code: paste.content,

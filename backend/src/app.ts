@@ -111,6 +111,16 @@ function getServerSeoMetadata(pathname: string): ServerSeoMetadata {
     };
   }
 
+  const shortCodeMatch = normalizedPath.match(/^\/([A-Za-z0-9]{6})$/);
+  if (shortCodeMatch) {
+    return {
+      title: 'Shared Code Snippet – Code Snipper',
+      description: 'A temporary code or text snippet shared through Code Snipper.',
+      canonicalPath: `/${shortCodeMatch[1]}`,
+      robots: 'noindex,nofollow',
+    };
+  }
+
   return {
     title: 'Page Not Found – Code Snipper',
     description: 'The requested Code Snipper page could not be found.',
@@ -334,7 +344,8 @@ export function createApp(): Express {
       }
 
       const normalizedPath = req.path.length > 1 ? req.path.replace(/\/+$/, '') : req.path;
-      const isSharedRoute = /^\/(p|s)\/[A-Za-z0-9_-]+(?:\/.*)?$/.test(normalizedPath);
+      const isSharedRoute = /^\/(p|s)\/[A-Za-z0-9_-]+(?:\/.*)?$/.test(normalizedPath)
+        || /^\/[A-Za-z0-9]{6}$/.test(normalizedPath);
       const isKnownRoute = normalizedPath === '/index.html' || Boolean(SERVER_SEO_PAGES[normalizedPath]) || isSharedRoute;
       const routePath = normalizedPath === '/index.html' ? '/' : normalizedPath;
       const metadata = getServerSeoMetadata(routePath);

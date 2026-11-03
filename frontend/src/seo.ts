@@ -96,6 +96,16 @@ export function getSeoMetadata(pathname: string): SeoMetadata {
     };
   }
 
+  const shortCodeMatch = normalizedPath.match(/^\/([A-Za-z0-9]{6})$/);
+  if (shortCodeMatch) {
+    return {
+      title: 'Shared Code Snippet – Code Snipper',
+      description: 'A temporary code or text snippet shared through Code Snipper.',
+      path: `/${shortCodeMatch[1]}`,
+      robots: 'noindex,nofollow',
+    };
+  }
+
   return {
     title: 'Page Not Found – Code Snipper',
     description: 'The requested Code Snipper page could not be found.',

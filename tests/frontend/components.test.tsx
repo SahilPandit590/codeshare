@@ -9,6 +9,7 @@ import { LanguageSelector } from '../../frontend/src/components/LanguageSelector
 import { StatusBanner } from '../../frontend/src/components/StatusBanner';
 import { DeleteConfirmModal } from '../../frontend/src/components/DeleteConfirmModal';
 import { PasteCreatedModal } from '../../frontend/src/components/PasteCreatedModal';
+import { Footer } from '../../frontend/src/components/Footer';
 import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from '@codeshare/shared';
 
 describe('Frontend Component Tests', () => {
@@ -111,12 +112,14 @@ describe('Frontend Component Tests', () => {
 
       const mockPaste = {
         id: 'test-paste-id',
-        url: 'http://localhost:3000/p/test-paste-id',
+        shortCode: 'abc6aD',
+        url: 'https://snipper.work.gd/abc6aD',
+        shareUrl: 'https://snipper.work.gd/abc6aD',
         language: 'typescript' as const,
         createdAt: new Date().toISOString(),
         expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
         deleteToken: 'secret-token-xyz',
-        deleteUrl: 'http://localhost:3000/p/test-paste-id?token=secret-token-xyz',
+        deleteUrl: 'https://snipper.work.gd/p/test-paste-id?token=secret-token-xyz',
       };
 
       render(
@@ -128,13 +131,24 @@ describe('Frontend Component Tests', () => {
       );
 
       expect(screen.getByText('Paste Ready to Share!')).toBeDefined();
-      expect(screen.getByDisplayValue('http://localhost:3000/p/test-paste-id')).toBeDefined();
-      expect(screen.getByDisplayValue('http://localhost:3000/p/test-paste-id?token=secret-token-xyz')).toBeDefined();
+      expect(screen.getByDisplayValue('https://snipper.work.gd/abc6aD')).toBeDefined();
+      expect(screen.getByDisplayValue('https://snipper.work.gd/p/test-paste-id?token=secret-token-xyz')).toBeDefined();
       expect(screen.getByText(/Save your deletion link now/)).toBeDefined();
 
       const viewBtn = screen.getByText('View Paste');
       fireEvent.click(viewBtn);
       expect(handleView).toHaveBeenCalledWith('test-paste-id');
+    });
+  });
+
+  describe('Footer sponsored link', () => {
+    it('renders the Smartlink as an explicit new-tab sponsored link', () => {
+      render(<Footer />);
+
+      const link = screen.getByRole('link', { name: 'Sponsored · Support us' });
+      expect(link.getAttribute('href')).toBe('https://asiafilm.org/4/a08e9ef6b2917c6eb574f09bf3ab6b48');
+      expect(link.getAttribute('target')).toBe('_blank');
+      expect(link.getAttribute('rel')).toBe('noopener noreferrer');
     });
   });
 });

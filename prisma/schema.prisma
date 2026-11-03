@@ -10,6 +10,7 @@ generator client {
 
 model Paste {
   id              String   @id @db.VarChar(32)
+  shortCode       String?  @unique @db.VarChar(6)
   content         String   @db.Text
   language        String   @default("text") @db.VarChar(32)
   createdAt       DateTime @default(now()) @db.Timestamptz(6)
@@ -19,4 +20,3 @@ model Paste {
   @@index([expiresAt], name: "idx_pastes_expires_at")
   @@map("pastes")
 }
-

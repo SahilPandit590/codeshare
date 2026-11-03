@@ -24,7 +24,7 @@ describe('Snippet API Endpoints', () => {
     (prisma.$queryRaw as any).mockResolvedValue([]);
   });
 
-  it('creates a snippet with a secure unique share URL and persists the submitted code', async () => {
+  it('creates a snippet with a secure six-character share URL and persists the submitted code', async () => {
     (prisma.paste.create as any).mockResolvedValue({});
 
     const response = await request(app)
@@ -33,19 +33,20 @@ describe('Snippet API Endpoints', () => {
 
     expect(response.status).toBe(201);
     expect(response.body.id).toMatch(/^[A-Za-z0-9_-]{22}$/);
-    expect(response.body.url).toMatch(new RegExp(`/s/${response.body.id}$`));
-    expect(response.body.url).toBe(new URL(`/s/${response.body.id}`, env.APP_BASE_URL).toString());
+    expect(response.body.shortCode).toMatch(/^[A-Za-z0-9]{6}$/);
+    expect(response.body.url).toBe(new URL(`/${response.body.shortCode}`, env.PUBLIC_SHARE_ORIGIN).toString());
     expect(response.body.shareUrl).toBe(response.body.url);
     expect(response.body.deleteToken).toBeDefined();
     expect(response.body.deleteTokenHash).toBeUndefined();
 
     const createArgs = (prisma.paste.create as any).mock.calls[0][0];
     expect(createArgs.data.id).toBe(response.body.id);
+    expect(createArgs.data.shortCode).toBe(response.body.shortCode);
     expect(createArgs.data.content).toBe('const shared = true;');
     expect(createArgs.data.language).toBe('typescript');
   });
 
-  it('generates different IDs for different submissions', async () => {
+  it('generates different IDs and short codes for different submissions', async () => {
     (prisma.paste.create as any).mockResolvedValue({});
 
     const first = await request(app).post('/api/snippets').send({ code: 'one' });
@@ -54,9 +55,10 @@ describe('Snippet API Endpoints', () => {
     expect(first.status).toBe(201);
     expect(second.status).toBe(201);
     expect(first.body.id).not.toBe(second.body.id);
+    expect(first.body.shortCode).not.toBe(second.body.shortCode);
   });
 
-  it('retries safely when the database reports an ID collision', async () => {
+  it('retries safely when the database reports an identifier collision', async () => {
     const collision = Object.assign(new Error('duplicate key'), { code: 'P2002' });
     (prisma.paste.create as any)
       .mockRejectedValueOnce(collision)
@@ -68,6 +70,8 @@ describe('Snippet API Endpoints', () => {
     expect(prisma.paste.create).toHaveBeenCalledTimes(2);
     expect((prisma.paste.create as any).mock.calls[0][0].data.id)
       .not.toBe((prisma.paste.create as any).mock.calls[1][0].data.id);
+    expect((prisma.paste.create as any).mock.calls[0][0].data.shortCode)
+      .not.toBe((prisma.paste.create as any).mock.calls[1][0].data.shortCode);
   });
 
   it('retrieves the exact code, language, and creation timestamp', async () => {
@@ -92,7 +96,31 @@ describe('Snippet API Endpoints', () => {
     });
   });
 
-  it('returns 404 for missing and malformed IDs without querying the database', async () => {
+  it('retrieves a snippet by its six-character short code', async () => {
+    const createdAt = new Date('2026-01-01T00:00:00.000Z');
+    (prisma.paste.findUnique as any)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({
+        id: 'snippet-internal-id',
+        shortCode: 'abc6aD',
+        content: 'const short = true;',
+        language: 'javascript',
+        createdAt,
+        expiresAt: new Date(Date.now() + 60_000),
+      });
+
+    const response = await request(app).get('/api/snippets/abc6aD');
+
+    expect(response.status).toBe(200);
+    expect(response.body.id).toBe('snippet-internal-id');
+    expect(response.body.code).toBe('const short = true;');
+    expect((prisma.paste.findUnique as any).mock.calls).toEqual([
+      [{ where: { id: 'abc6aD' } }],
+      [{ where: { shortCode: 'abc6aD' } }],
+    ]);
+  });
+
+  it('returns 404 for missing and malformed IDs without exposing identifier details', async () => {
     (prisma.paste.findUnique as any).mockResolvedValue(null);
 
     const missing = await request(app).get('/api/snippets/missing-id');
@@ -101,7 +129,7 @@ describe('Snippet API Endpoints', () => {
     expect(missing.status).toBe(404);
     expect(malformed.status).toBe(404);
     expect(malformed.body.error.code).toBe('NOT_FOUND');
-    expect(prisma.paste.findUnique).toHaveBeenCalledTimes(1);
+    expect(prisma.paste.findUnique).toHaveBeenCalledTimes(2);
   });
 
   it('returns 410 for an expired snippet', async () => {
