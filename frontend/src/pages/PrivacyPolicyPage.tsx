@@ -92,7 +92,7 @@ export function PrivacyPolicyPage({ onNavigateHome, onNavigateCreate, onNavigate
               If you discover content on Code Snipper that violates legal statutes or terms of service, please contact our abuse contact immediately:
             </p>
             <div className="rounded border border-amber-200 bg-amber-50 p-3 font-mono text-xs text-amber-700 dark:border-amber-900/40 dark:bg-slate-900 dark:text-amber-300">
-              [OWNER TO CONFIGURE: Contact email for privacy and abuse inquiries: contact@example.com]
+              Contact email for privacy and abuse inquiries: sahilpandit590@gmail.com
             </div>
           </section>
         </article>
