@@ -71,7 +71,7 @@ export function TermsPage({ onNavigateHome, onNavigateCreate, onNavigatePrivacy 
               We respond promptly to valid intellectual property takedown and abuse reports. To request content removal, contact our abuse desk:
             </p>
             <div className="rounded border border-amber-200 bg-amber-50 p-3 font-mono text-xs text-amber-700 dark:border-amber-900/40 dark:bg-slate-900 dark:text-amber-300">
-              [OWNER TO CONFIGURE: Takedown and DMCA notice email: abuse@example.com]
+              Takedown and DMCA notice email: sahilpandit590@gmail.com
             </div>
           </section>
         </article>

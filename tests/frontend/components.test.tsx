@@ -10,6 +10,7 @@ import { StatusBanner } from '../../frontend/src/components/StatusBanner';
 import { DeleteConfirmModal } from '../../frontend/src/components/DeleteConfirmModal';
 import { PasteCreatedModal } from '../../frontend/src/components/PasteCreatedModal';
 import { Footer } from '../../frontend/src/components/Footer';
+import { AboutPage } from '../../frontend/src/pages/AboutPage';
 import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from '@codeshare/shared';
 
 describe('Frontend Component Tests', () => {
@@ -145,10 +146,28 @@ describe('Frontend Component Tests', () => {
     it('renders the Smartlink as an explicit new-tab sponsored link', () => {
       render(<Footer />);
 
-      const link = screen.getByRole('link', { name: 'Sponsored · Support us' });
+      const link = screen.getByRole('link', { name: 'Sponsored' });
       expect(link.getAttribute('href')).toBe('https://asiafilm.org/4/a08e9ef6b2917c6eb574f09bf3ab6b48');
       expect(link.getAttribute('target')).toBe('_blank');
       expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+      expect(screen.getByRole('link', { name: 'Contact' }).getAttribute('href')).toBe('mailto:sahilpandit590@gmail.com');
     });
+
+    it('opens the support popup with the UPI ID and QR code', () => {
+      render(<Footer />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Support us' }));
+
+      expect(screen.getByRole('dialog')).toBeDefined();
+      expect(screen.getByDisplayValue('yukine590-2@okicici')).toBeDefined();
+      expect(screen.getByAltText('UPI QR code for yukine590-2@okicici')).toBeDefined();
+    });
+  });
+
+  it('renders the configured About-page contact email', () => {
+    render(<AboutPage onNavigateHome={vi.fn()} onNavigatePrivacy={vi.fn()} onNavigateTerms={vi.fn()} />);
+
+    expect(screen.getByText('Administrative Email: sahilpandit590@gmail.com')).toBeDefined();
+    expect(screen.getByText('Abuse / Takedown Email: sahilpandit590@gmail.com')).toBeDefined();
   });
 });

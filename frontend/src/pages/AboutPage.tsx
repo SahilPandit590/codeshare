@@ -64,8 +64,8 @@ export function AboutPage({
               Code Snipper is maintained by independent open-source software engineers. For administrative inquiries, copyright notices, or abuse reporting, please reach out to our team:
             </p>
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono text-xs text-amber-700 dark:border-slate-800 dark:bg-slate-900 dark:text-amber-300">
-              <div>[OWNER TO CONFIGURE: Administrative Email: admin@example.com]</div>
-              <div>[OWNER TO CONFIGURE: Abuse / Takedown Email: abuse@example.com]</div>
+              <div>Administrative Email: sahilpandit590@gmail.com</div>
+              <div>Abuse / Takedown Email: sahilpandit590@gmail.com</div>
             </div>
           </section>
         </article>
