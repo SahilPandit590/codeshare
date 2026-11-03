@@ -160,7 +160,9 @@ describe('Frontend Component Tests', () => {
 
       expect(screen.getByRole('dialog')).toBeDefined();
       expect(screen.getByDisplayValue('yukine590-2@okicici')).toBeDefined();
-      expect(screen.getByAltText('UPI QR code for yukine590-2@okicici')).toBeDefined();
+      const qr = screen.getByAltText('UPI QR code for yukine590-2@okicici');
+      expect(qr).toBeDefined();
+      expect(qr.getAttribute('src')).toBe('/support-upi-qr.png');
     });
   });
 
