@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Code Snipper</title>
+  <desc id="description">Share code snippets online with temporary links.</desc>
+  <rect width="1200" height="630" fill="#0f172a"/>
+  <circle cx="1010" cy="90" r="220" fill="#2563eb" opacity=".18"/>
+  <circle cx="1080" cy="560" r="260" fill="#14b8a6" opacity=".12"/>
+  <rect x="100" y="105" width="1000" height="420" rx="32" fill="#111827" stroke="#334155" stroke-width="3"/>
+  <rect x="100" y="105" width="1000" height="76" rx="32" fill="#1e293b"/>
+  <circle cx="145" cy="143" r="10" fill="#64748b"/>
+  <circle cx="180" cy="143" r="10" fill="#64748b"/>
+  <circle cx="215" cy="143" r="10" fill="#64748b"/>
+  <text x="280" y="151" fill="#94a3b8" font-family="Arial, sans-serif" font-size="24">temporary-code-share.js</text>
+  <text x="155" y="280" fill="#60a5fa" font-family="monospace" font-size="42">const</text>
+  <text x="295" y="280" fill="#e2e8f0" font-family="monospace" font-size="42">link = share(code);</text>
+  <text x="155" y="345" fill="#34d399" font-family="monospace" font-size="34">// simple, temporary, shareable</text>
+  <text x="100" y="590" fill="#f8fafc" font-family="Arial, sans-serif" font-size="42" font-weight="700">Code Snipper</text>
+  <text x="420" y="590" fill="#94a3b8" font-family="Arial, sans-serif" font-size="30">Share code online without the clutter.</text>
+</svg>

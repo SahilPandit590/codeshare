@@ -3,7 +3,7 @@ import { AlertTriangle, Check, Clock, Copy, FileX, Hourglass, Loader2, Plus } fr
 import { GetSnippetResponse, LANGUAGE_LABELS } from '@codeshare/shared';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
-import { Editor } from '../components/Editor';
+import { LazyEditor } from '../components/LazyEditor';
 import { AdSlot } from '../components/AdSlot';
 import { adsConfig } from '../config/ads';
 import { useClipboard } from '../hooks/useClipboard';
@@ -125,7 +125,7 @@ export const SnippetSharePage: React.FC<SnippetSharePageProps> = ({
             {copied ? 'Copied' : 'Copy code'}
           </button>
         </div>
-        <div className="p-3 sm:p-5"><Editor value={snippet.code} language={snippet.language} readOnly minHeight="min(620px, 70vh)" /></div>
+        <div className="p-3 sm:p-5"><LazyEditor value={snippet.code} language={snippet.language} readOnly minHeight="min(620px, 70vh)" /></div>
       </div>
       <AdSlot slotId={adsConfig.viewSlotId} className="my-6" />
       <p className="px-1 pt-2 text-xs text-slate-500 dark:text-slate-400">Created {new Date(snippet.createdAt).toUTCString()} · Expires {new Date(snippet.expiresAt).toUTCString()}</p>

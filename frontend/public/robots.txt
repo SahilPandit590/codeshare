@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /login
+Disallow: /signup
+
+Sitemap: https://snipper.work.gd/sitemap.xml
+

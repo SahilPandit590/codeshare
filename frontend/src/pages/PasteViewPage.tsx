@@ -3,7 +3,7 @@ import { AlertTriangle, Check, Clock, Copy, FileX, Hourglass, Loader2, Plus, Sha
 import { GetPasteResponse, LANGUAGE_LABELS } from '@codeshare/shared';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
-import { Editor } from '../components/Editor';
+import { LazyEditor } from '../components/LazyEditor';
 import { DeleteConfirmModal } from '../components/DeleteConfirmModal';
 import { AdSlot } from '../components/AdSlot';
 import { adsConfig } from '../config/ads';
@@ -127,7 +127,7 @@ export const PasteViewPage: React.FC<PasteViewPageProps> = ({ pasteId, initialTo
             <button type="button" onClick={() => setIsDeleteModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"><Trash2 className="h-4 w-4" /> Delete paste</button>
           </div>
         </div>
-        <div className="p-3 sm:p-5"><Editor value={paste.content} language={paste.language} readOnly minHeight="min(620px, 70vh)" /></div>
+         <div className="p-3 sm:p-5"><LazyEditor value={paste.content} language={paste.language} readOnly minHeight="min(620px, 70vh)" /></div>
       </div>
       <AdSlot slotId={adsConfig.viewSlotId} className="my-6" />
       <div className="flex flex-col gap-1 px-1 pt-2 text-xs text-slate-500 dark:text-slate-400 sm:flex-row sm:justify-between"><span>Created {new Date(paste.createdAt).toUTCString()}</span><span>Expires {new Date(paste.expiresAt).toUTCString()}</span></div>

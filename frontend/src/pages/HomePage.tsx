@@ -56,7 +56,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <button type="button" onClick={create} className="button-primary justify-center px-5 py-3 text-sm">
                   Create a paste <ArrowRight className="h-4 w-4" />
                 </button>
-                <a href="#how-it-works" className="button-secondary justify-center px-5 py-3 text-sm">
+                <a href="/how-it-works" className="button-secondary justify-center px-5 py-3 text-sm">
                   How it works
                 </a>
               </div>

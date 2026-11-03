@@ -6,7 +6,10 @@ import { AboutPage } from './pages/AboutPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { TermsPage } from './pages/TermsPage';
 import { CreatePastePage } from './pages/CreatePastePage';
+import { InformationalPage, type InformationalPageKind } from './pages/InformationalPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { applySeoMetadata, getSeoMetadata } from './seo';
 
 type RouteState =
   | { page: 'home' }
@@ -15,10 +18,14 @@ type RouteState =
   | { page: 'snippet'; snippetId: string }
   | { page: 'about' }
   | { page: 'privacy' }
-  | { page: 'terms' };
+  | { page: 'terms' }
+  | { page: 'informational'; kind: InformationalPageKind }
+  | { page: 'not-found' };
 
 function resolveRoute(): RouteState {
-  const path = window.location.pathname;
+  const path = window.location.pathname.length > 1
+    ? window.location.pathname.replace(/\/+$/, '')
+    : window.location.pathname;
   const search = new URLSearchParams(window.location.search);
   const token = search.get('token') || undefined;
 
@@ -52,7 +59,22 @@ function resolveRoute(): RouteState {
     return { page: 'terms' };
   }
 
-  return { page: 'home' };
+  const informationalPaths: Record<string, InformationalPageKind> = {
+    '/features': 'features',
+    '/how-it-works': 'how-it-works',
+    '/faq': 'faq',
+    '/online-code-sharing': 'online-code-sharing',
+    '/share-code-online': 'share-code-online',
+    '/online-code-snippets': 'online-code-snippets',
+    '/pastebin-alternative': 'pastebin-alternative',
+  };
+
+  if (informationalPaths[path]) {
+    return { page: 'informational', kind: informationalPaths[path] };
+  }
+
+  if (path === '/') return { page: 'home' };
+  return { page: 'not-found' };
 }
 
 export function App() {
@@ -67,6 +89,10 @@ export function App() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  useEffect(() => {
+    applySeoMetadata(getSeoMetadata(window.location.pathname));
+  }, [currentRoute]);
 
   const navigateToPaste = (id: string, token?: string) => {
     // Keep a creator's token in React memory only. It is never added to the URL.
@@ -108,6 +134,17 @@ export function App() {
     page = <PrivacyPolicyPage onNavigateHome={navigateHome} onNavigateCreate={navigateCreate} onNavigateTerms={navigateTerms} />;
   } else if (currentRoute.page === 'terms') {
     page = <TermsPage onNavigateHome={navigateHome} onNavigateCreate={navigateCreate} onNavigatePrivacy={navigatePrivacy} />;
+  } else if (currentRoute.page === 'informational') {
+    page = (
+      <InformationalPage
+        kind={currentRoute.kind}
+        onNavigateHome={navigateHome}
+        onNavigateCreate={navigateCreate}
+        onNavigateAbout={navigateAbout}
+        onNavigatePrivacy={navigatePrivacy}
+        onNavigateTerms={navigateTerms}
+      />
+    );
   } else if (currentRoute.page === 'create') {
     page = (
       <CreatePastePage
@@ -142,6 +179,8 @@ export function App() {
         onNavigateTerms={navigateTerms}
       />
     );
+  } else if (currentRoute.page === 'not-found') {
+    page = <NotFoundPage onNavigateHome={navigateHome} onNavigateCreate={navigateCreate} />;
   } else {
     page = (
       <HomePage

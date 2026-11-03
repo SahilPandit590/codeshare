@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { CreateSnippetResponse, SupportedLanguage } from '@codeshare/shared';
 import { Loader2, Share2, Trash2 } from 'lucide-react';
 import { LanguageSelector } from './LanguageSelector';
-import { Editor } from './Editor';
+import { LazyEditor } from './LazyEditor';
 import { StatusBanner } from './StatusBanner';
 import { PasteCreatedModal } from './PasteCreatedModal';
 import { api, ApiError } from '../services/api';
@@ -76,7 +76,7 @@ export function PasteComposer({ onNavigateToPaste }: PasteComposerProps) {
         </div>
 
         <div className="p-3 sm:p-5">
-          <Editor
+          <LazyEditor
             value={content}
             onChange={setContent}
             language={language}

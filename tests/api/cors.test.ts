@@ -1,4 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
+import { readdirSync, readFileSync } from 'node:fs';
+import path from 'node:path';
 import request from 'supertest';
 import { createApp } from '../../backend/src/app';
 import { env } from '../../backend/src/config/env';
@@ -26,6 +28,68 @@ describe('CORS & Static Asset Handling', () => {
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toContain('text/html');
     expect(res.text).toContain('<div id="root">');
+  });
+
+  it('serves route-aware metadata and correct status/indexing directives', async () => {
+    const faq = await request(app).get('/faq').set('Accept', 'text/html');
+    expect(faq.status).toBe(200);
+    expect(faq.text).toContain('<title>Code Snipper FAQ – Online Code Sharing Questions</title>');
+    expect(faq.text).toContain('<meta name="robots" content="index,follow" />');
+    expect(faq.text).toContain('<link rel="canonical" href="https://snipper.work.gd/faq" />');
+    expect(faq.text).toContain('"@type":"FAQPage"');
+
+    const create = await request(app).get('/create').set('Accept', 'text/html');
+    expect(create.status).toBe(200);
+    expect(create.text).toContain('<meta name="robots" content="noindex,follow" />');
+
+    const shared = await request(app).get('/p/server-rendered-id').set('Accept', 'text/html');
+    expect(shared.status).toBe(200);
+    expect(shared.text).toContain('<meta name="robots" content="noindex,nofollow" />');
+    expect(shared.text).toContain('<link rel="canonical" href="https://snipper.work.gd/p/server-rendered-id" />');
+
+    const missing = await request(app).get('/does-not-exist').set('Accept', 'text/html');
+    expect(missing.status).toBe(404);
+    expect(missing.text).toContain('<meta name="robots" content="noindex,nofollow" />');
+  });
+
+  it('serves an indexable robots policy and public sitemap', async () => {
+    const robots = await request(app)
+      .get('/robots.txt')
+      .set('User-Agent', 'Googlebot/2.1 (+http://www.google.com/bot.html)');
+
+    expect(robots.status).toBe(200);
+    expect(robots.headers['content-type']).toContain('text/plain');
+    expect(robots.text).toContain('User-agent: *');
+    expect(robots.text).toContain('Allow: /');
+    expect(robots.text).toContain('Sitemap: https://snipper.work.gd/sitemap.xml');
+
+    const sitemap = await request(app)
+      .get('/sitemap.xml')
+      .set('User-Agent', 'Googlebot/2.1 (+http://www.google.com/bot.html)');
+
+    expect(sitemap.status).toBe(200);
+    expect(sitemap.headers['content-type']).toContain('application/xml');
+    expect(sitemap.text).toContain('<urlset');
+    expect(sitemap.text).toContain('<loc>https://snipper.work.gd/</loc>');
+    expect(sitemap.text).not.toContain('/api/');
+    expect(sitemap.text).not.toContain('/p/');
+    expect(sitemap.text).not.toContain('/s/');
+
+    const sitemapUrls = [...sitemap.text.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
+    const pageResponses = await Promise.all(sitemapUrls.map((url) => request(app).get(url).set('Accept', 'text/html')));
+    expect(pageResponses.every((response) => response.status === 200)).toBe(true);
+  });
+
+  it('serves the IndexNow verification key as public plain text', async () => {
+    const keyFile = readdirSync(path.resolve(process.cwd(), 'frontend/public'))
+      .find((file) => /^indexnow-[a-f0-9]{32}\.txt$/i.test(file));
+    expect(keyFile).toBeDefined();
+    const key = readFileSync(path.resolve(process.cwd(), 'frontend/public', keyFile as string), 'utf8').trim();
+    const response = await request(app).get(`/${keyFile}`);
+
+    expect(response.status).toBe(200);
+    expect(response.headers['content-type']).toContain('text/plain');
+    expect(response.text.trim()).toBe(key);
   });
 
   it('allows API requests from configured CORS_ORIGIN', async () => {
